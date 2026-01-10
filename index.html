@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fuel Station Calc</title>
-    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/888/888846.png">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/888/888846.png">
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1086/1086741.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1086/1086741.png">
     
     <style>
         :root { --display-bg: #000; --led-red: #ff3b30; --led-green: #4cd964; --led-yellow: #ffcc00; }
@@ -16,17 +16,6 @@
             width: 100%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
-        /* Горни настройки на цените - остават за справка, но не се попълват автоматично */
-        .settings-panel { 
-            background: #444; padding: 10px; border-radius: 10px; margin-bottom: 15px; 
-            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; border: 1px solid #555;
-        }
-        .settings-panel div { text-align: center; font-size: 10px; color: #aaa; }
-        .settings-panel input { 
-            width: 100%; background: #222; border: 1px solid #666; color: var(--led-yellow); 
-            text-align: center; padding: 5px 0; font-size: 14px; border-radius: 5px;
-        }
-
         .fuel-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .f-btn { padding: 15px 5px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-size: 11px; color: white; transition: 0.3s; }
         .a95 { background: #006400; border: 2px solid #008000; }
@@ -35,7 +24,7 @@
 
         .display-unit { background: var(--display-bg); border-radius: 10px; padding: 12px; border: 3px inset #222; margin-bottom: 10px; transition: background-color 0.4s ease; }
         label { display: block; font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 3px; }
-        .main-input { width: 100%; background: transparent; border: none; color: var(--led-yellow); font-size: 30px; text-align: right; outline: none; }
+        .main-input { width: 100%; background: transparent; border: none; color: var(--led-yellow); font-size: 30px; text-align: right; outline: none; font-family: 'Courier New', monospace; }
 
         .res-area { background: #000; padding: 15px; border-radius: 8px; border: 2px solid #222; }
         .val-eur { color: var(--led-red); font-size: 34px; font-weight: bold; display: block; text-align: right; }
@@ -47,7 +36,7 @@
 <body>
 
 <div class="pump-body">
-    <div style="text-align:center; color:#777; font-size:12px; margin-bottom:10px;">БЪРЗ ИЗБОР НА ГОРИВО</div>
+    <div style="text-align:center; color:#777; font-size:12px; margin-bottom:10px;">ИЗБЕРЕТЕ ГОРИВО</div>
     
     <div class="fuel-selector">
         <button class="f-btn a95" onclick="changeColor('#006400')">A95H</button>
@@ -73,20 +62,15 @@
     </div>
 
     <button class="clear-btn" onclick="cls()">RESET / ИЗЧИСТИ</button>
-
-    <div style="margin-top:15px; font-size:10px; color:#555; text-align:center;">
-        Настройки на цените се пазят автоматично.
-    </div>
 </div>
 
 <script>
     const R = 1.95583;
 
-    // Смяна само на цвета на полето без промяна на сумата
     function changeColor(color) {
         document.getElementById('eurBox').style.backgroundColor = color;
         document.getElementById('eurLabel').style.color = '#fff';
-        document.getElementById('pEur').focus(); // Автоматично насочва към писане
+        document.getElementById('pEur').focus();
     }
 
     function run() {
@@ -116,11 +100,11 @@
         document.getElementById('rb').innerText = "0.00";
     }
 
-    // ОФЛАЙН ПОДДРЪЖКА (Service Worker)
+    // SERVICE WORKER ЗА ОФЛАЙН РЕЖИМ
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             const swCode = `
-                const cacheName = 'fuel-v8';
+                const cacheName = 'fuel-v9';
                 self.addEventListener('install', e => {
                     self.skipWaiting();
                     e.waitUntil(caches.open(cacheName).then(c => c.addAll(['./'])));
