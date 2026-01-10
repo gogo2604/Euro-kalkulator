@@ -3,34 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Евро Калкулатор</title>
+    <title>Евро Калкулатор - Горива</title>
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5968/5968260.png">
     <style>
         body { font-family: sans-serif; background: #eef2f3; display: flex; justify-content: center; padding: 10px; margin: 0; }
-        .box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin-top: 20px; }
-        h2 { text-align: center; color: #003399; margin-bottom: 20px; }
-        label { display: block; margin: 15px 0 5px; font-weight: bold; color: #444; }
-        input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 20px; box-sizing: border-box; transition: 0.3s; }
-        input:focus { border-color: #003399; outline: none; background: #fdfdfd; }
+        .box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin-top: 10px; }
+        h2 { text-align: center; color: #003399; margin-bottom: 15px; font-size: 22px; }
         
-        .clear-btn { width: 100%; margin-top: 15px; padding: 12px; background: #666; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; font-weight: bold; opacity: 0.8; }
+        .fuel-settings { background: #f8f9fa; padding: 10px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #ddd; }
+        .fuel-settings h4 { margin: 0 0 10px 0; font-size: 14px; color: #666; text-align: center; }
+        .fuel-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; }
+        .fuel-grid input { padding: 8px; font-size: 14px; text-align: center; }
         
-        .res-area { margin-top: 25px; padding: 20px; background: #fff; border-radius: 15px; border: 2px solid #eee; transition: all 0.3s ease; }
-        .res-row { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 18px; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
+        .fuel-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .f-btn { padding: 12px 5px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; color: white; font-size: 12px; }
+        .btn-a95 { background: #27ae60; }
+        .btn-diesel { background: #2c3e50; }
+        .btn-gas { border: 2px solid #f39c12; color: #f39c12; background: white; }
+
+        label { display: block; margin: 10px 0 5px; font-weight: bold; color: #444; }
+        input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 20px; box-sizing: border-box; }
         
-        /* ЦВЕТОВЕТЕ, КОИТО ПОИСКА */
-        .val-eur { font-weight: bold; color: #d32f2f; font-size: 28px; } /* ЧЕРВЕНО ЗА ЕВРО */
-        .val-bgn { font-weight: bold; color: #2e7d32; font-size: 24px; } /* ЗЕЛЕНО ЗА ЛЕВА */
+        .res-area { margin-top: 20px; padding: 15px; background: #fff; border-radius: 15px; border: 2px solid #eee; }
+        .res-row { display: flex; justify-content: space-between; align-items: center; margin: 8px 0; }
+        .val-eur { font-weight: bold; color: #d32f2f; font-size: 28px; }
+        .val-bgn { font-weight: bold; color: #2e7d32; font-size: 24px; }
         
-        .label-text { color: #555; font-weight: 500; }
-        .status-msg { text-align: center; color: #d32f2f; font-weight: bold; margin-top: 10px; display: none; }
+        .clear-btn { width: 100%; margin-top: 15px; padding: 10px; background: #666; color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
+        .status-msg { text-align: center; color: #d32f2f; font-weight: bold; margin: 10px 0; display: none; }
     </style>
 </head>
 <body>
 <div class="box">
-    <h2>Евро Калкулатор</h2>
+    <h2>Калкулатор Горива</h2>
     
-    <label>Цена на стоката (€):</label>
+    <div class="fuel-settings">
+        <h4>Настройка цени за литър (€)</h4>
+        <div class="fuel-grid">
+            <input type="number" id="priceA95" value="1.35" step="0.01">
+            <input type="number" id="priceDiesel" value="1.40" step="0.01">
+            <input type="number" id="priceGas" value="0.65" step="0.01">
+        </div>
+    </div>
+
+    <div class="fuel-buttons">
+        <button class="f-btn btn-a95" onclick="setFuel('A95')">A95H</button>
+        <button class="f-btn btn-diesel" onclick="setFuel('Diesel')">ДИЗЕЛ</button>
+        <button class="f-btn btn-gas" onclick="setFuel('Gas')">ГАЗ</button>
+    </div>
+
+    <label>Цена на зареждане (€):</label>
     <input type="number" id="pEur" placeholder="0.00" inputmode="decimal" oninput="run()">
     
     <label>Платено от клиента (лв):</label>
@@ -39,21 +61,25 @@
     <div id="status" class="status-msg">Недостатъчна сума!</div>
 
     <div id="out" class="res-area">
-        <div class="res-row">
-            <span class="label-text">Ресто в ЕВРО:</span> 
-            <span class="val-eur" id="re">0.00 €</span>
-        </div>
-        <div class="res-row">
-            <span class="label-text">Ресто в ЛЕВА:</span> 
-            <span class="val-bgn" id="rb">0.00 лв</span>
-        </div>
+        <div class="res-row"><span>Ресто (€):</span> <span class="val-eur" id="re">0.00 €</span></div>
+        <div class="res-row"><span>Ресто (лв):</span> <span class="val-bgn" id="rb">0.00 лв</span></div>
     </div>
 
-    <button class="clear-btn" onclick="cls()">ИЗЧИСТИ ВСИЧКО</button>
+    <button class="clear-btn" onclick="cls()">ИЗЧИСТИ</button>
 </div>
 
 <script>
     const R = 1.95583;
+
+    function setFuel(type) {
+        let price = 0;
+        if(type === 'A95') price = document.getElementById('priceA95').value;
+        if(type === 'Diesel') price = document.getElementById('priceDiesel').value;
+        if(type === 'Gas') price = document.getElementById('priceGas').value;
+        
+        document.getElementById('pEur').value = price;
+        run();
+    }
 
     function run() {
         let e = parseFloat(document.getElementById('pEur').value) || 0;
@@ -67,8 +93,7 @@
             return;
         }
 
-        let paidInEur = b / R;
-        let chE = paidInEur - e;
+        let chE = (b / R) - e;
 
         if (chE < 0) {
             out.style.opacity = "0.3";
@@ -88,15 +113,12 @@
         document.getElementById('pBgn').value = '';
         document.getElementById('status').style.display = "none";
         document.getElementById('out').style.opacity = "0.3";
-        document.getElementById('re').innerText = "0.00 €";
-        document.getElementById('rb').innerText = "0.00 лв";
     }
 
-    // ОФЛАЙН ПОДДРЪЖКА
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             const swCode = `
-                const cacheName = 'v4';
+                const cacheName = 'v5';
                 self.addEventListener('install', e => e.waitUntil(caches.open(cacheName).then(c => c.addAll(['./']))));
                 self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
             `;
