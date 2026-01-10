@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fuel Station Calc - Color Sync</title>
+    <title>Fuel Station Calc</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/888/888846.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/888/888846.png">
+    
     <style>
         :root { --display-bg: #000; --led-red: #ff3b30; --led-green: #4cd964; --led-yellow: #ffcc00; }
         body { font-family: 'Courier New', monospace; background: #222; display: flex; justify-content: center; padding: 10px; margin: 0; color: white; }
@@ -13,6 +16,7 @@
             width: 100%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
         }
 
+        /* Горни настройки на цените - остават за справка, но не се попълват автоматично */
         .settings-panel { 
             background: #444; padding: 10px; border-radius: 10px; margin-bottom: 15px; 
             display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; border: 1px solid #555;
@@ -25,9 +29,9 @@
 
         .fuel-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
         .f-btn { padding: 15px 5px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-size: 11px; color: white; transition: 0.3s; }
-        .a95 { background: #006400; }
-        .diesel { background: #111; border: 1px solid #444; }
-        .lpg { background: #d35400; }
+        .a95 { background: #006400; border: 2px solid #008000; }
+        .diesel { background: #111; border: 2px solid #444; }
+        .lpg { background: #d35400; border: 2px solid #e67e22; }
 
         .display-unit { background: var(--display-bg); border-radius: 10px; padding: 12px; border: 3px inset #222; margin-bottom: 10px; transition: background-color 0.4s ease; }
         label { display: block; font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 3px; }
@@ -43,60 +47,46 @@
 <body>
 
 <div class="pump-body">
-    <div style="text-align:center; color:#777; font-size:12px; margin-bottom:10px;">FUEL STATION SETTINGS (EUR)</div>
+    <div style="text-align:center; color:#777; font-size:12px; margin-bottom:10px;">БЪРЗ ИЗБОР НА ГОРИВО</div>
     
-    <div class="settings-panel">
-        <div>A95<input type="number" id="cfgA95" step="0.001" oninput="savePrices()"></div>
-        <div>DIESEL<input type="number" id="cfgDiesel" step="0.001" oninput="savePrices()"></div>
-        <div>LPG<input type="number" id="cfgLPG" step="0.001" oninput="savePrices()"></div>
-    </div>
-
     <div class="fuel-selector">
-        <button class="f-btn a95" onclick="setFuel('cfgA95', '#006400')">A95H</button>
-        <button class="f-btn diesel" onclick="setFuel('cfgDiesel', '#111')">DIESEL</button>
-        <button class="f-btn lpg" onclick="setFuel('cfgLPG', '#d35400')">LPG</button>
+        <button class="f-btn a95" onclick="changeColor('#006400')">A95H</button>
+        <button class="f-btn diesel" onclick="changeColor('#111')">DIESEL</button>
+        <button class="f-btn lpg" onclick="changeColor('#d35400')">LPG</button>
     </div>
 
     <div class="display-unit" id="eurBox">
-        <label id="eurLabel">Total Price (€)</label>
+        <label id="eurLabel">Цена в Евро (€)</label>
         <input type="number" id="pEur" class="main-input" placeholder="0.00" inputmode="decimal" oninput="run()">
     </div>
 
     <div class="display-unit">
-        <label>Cash Received (BGN)</label>
+        <label>Платено в Лева (лв)</label>
         <input type="number" id="pBgn" class="main-input" placeholder="0.00" inputmode="decimal" oninput="run()">
     </div>
 
     <div class="res-area" id="out" style="opacity: 0.3;">
-        <label>Change EUR</label>
+        <label>Ресто в EUR</label>
         <span class="val-eur" id="re">0.00</span>
-        <label>Change BGN</label>
+        <label>Ресто в BGN</label>
         <span class="val-bgn" id="rb">0.00</span>
     </div>
 
-    <button class="clear-btn" onclick="cls()">RESET</button>
+    <button class="clear-btn" onclick="cls()">RESET / ИЗЧИСТИ</button>
+
+    <div style="margin-top:15px; font-size:10px; color:#555; text-align:center;">
+        Настройки на цените се пазят автоматично.
+    </div>
 </div>
 
 <script>
     const R = 1.95583;
 
-    window.onload = function() {
-        document.getElementById('cfgA95').value = localStorage.getItem('price_A95') || "1.350";
-        document.getElementById('cfgDiesel').value = localStorage.getItem('price_Diesel') || "1.420";
-        document.getElementById('cfgLPG').value = localStorage.getItem('price_LPG') || "0.680";
-    };
-
-    function savePrices() {
-        localStorage.setItem('price_A95', document.getElementById('cfgA95').value);
-        localStorage.setItem('price_Diesel', document.getElementById('cfgDiesel').value);
-        localStorage.setItem('price_LPG', document.getElementById('cfgLPG').value);
-    }
-
-    function setFuel(id, color) {
-        document.getElementById('pEur').value = document.getElementById(id).value;
+    // Смяна само на цвета на полето без промяна на сумата
+    function changeColor(color) {
         document.getElementById('eurBox').style.backgroundColor = color;
         document.getElementById('eurLabel').style.color = '#fff';
-        run();
+        document.getElementById('pEur').focus(); // Автоматично насочва към писане
     }
 
     function run() {
@@ -122,12 +112,15 @@
         document.getElementById('out').style.opacity = "0.3";
         document.getElementById('eurBox').style.backgroundColor = "#000";
         document.getElementById('eurLabel').style.color = '#666';
+        document.getElementById('re').innerText = "0.00";
+        document.getElementById('rb').innerText = "0.00";
     }
 
+    // ОФЛАЙН ПОДДРЪЖКА (Service Worker)
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
             const swCode = `
-                const cacheName = 'fuel-v7';
+                const cacheName = 'fuel-v8';
                 self.addEventListener('install', e => {
                     self.skipWaiting();
                     e.waitUntil(caches.open(cacheName).then(c => c.addAll(['./'])));
