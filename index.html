@@ -3,80 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Евро Калкулатор v5</title>
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/5968/5968260.png">
+    <title>Fuel Station Calc - Pro</title>
     <style>
-        body { font-family: sans-serif; background: #eef2f3; display: flex; justify-content: center; padding: 10px; margin: 0; }
-        .box { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 100%; max-width: 400px; margin-top: 20px; }
-        h2 { text-align: center; color: #003399; margin-bottom: 20px; }
-        label { display: block; margin: 15px 0 5px; font-weight: bold; color: #444; }
-        input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; font-size: 20px; box-sizing: border-box; transition: 0.3s; }
-        input:focus { border-color: #003399; outline: none; background: #fdfdfd; }
-        .clear-btn { width: 100%; margin-top: 15px; padding: 12px; background: #666; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer; font-weight: bold; }
-        .res-area { margin-top: 25px; padding: 20px; background: #fff; border-radius: 15px; border: 2px solid #eee; transition: all 0.3s ease; }
-        .res-row { display: flex; justify-content: space-between; align-items: center; margin: 12px 0; font-size: 18px; border-bottom: 1px dashed #eee; padding-bottom: 8px; }
-        .val-eur { font-weight: bold; color: #d32f2f; font-size: 28px; } /* ЧЕРВЕНО ЗА ЕВРО */
-        .val-bgn { font-weight: bold; color: #2e7d32; font-size: 24px; } /* ЗЕЛЕНО ЗА ЛЕВА */
-        .status-msg { text-align: center; color: #d32f2f; font-weight: bold; margin-top: 10px; display: none; }
+        :root { --display-bg: #000; --led-red: #ff3b30; --led-green: #4cd964; --led-yellow: #ffcc00; }
+        body { font-family: 'Courier New', monospace; background: #222; display: flex; justify-content: center; padding: 10px; margin: 0; color: white; }
+        
+        .pump-body { 
+            background: #333; border: 6px solid #111; border-radius: 20px; padding: 20px; 
+            width: 100%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+
+        .settings-panel { 
+            background: #444; padding: 10px; border-radius: 10px; margin-bottom: 15px; 
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px; border: 1px solid #555;
+        }
+        .settings-panel div { text-align: center; font-size: 10px; color: #aaa; }
+        .settings-panel input { 
+            width: 100%; background: #222; border: 1px solid #666; color: var(--led-yellow); 
+            text-align: center; padding: 5px 0; font-size: 14px; border-radius: 5px;
+        }
+
+        .fuel-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+        .f-btn { padding: 15px 5px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-size: 11px; color: white; }
+        .a95 { background: #006400; }
+        .diesel { background: #111; border: 1px solid #444; }
+        .lpg { background: #d35400; }
+
+        .display-unit { background: var(--display-bg); border-radius: 10px; padding: 12px; border: 3px inset #222; margin-bottom: 10px; }
+        label { display: block; font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 3px; }
+        .main-input { width: 100%; background: transparent; border: none; color: var(--led-yellow); font-size: 30px; text-align: right; outline: none; }
+
+        .res-area { background: #000; padding: 15px; border-radius: 8px; border: 2px solid #222; }
+        .val-eur { color: var(--led-red); font-size: 34px; font-weight: bold; display: block; text-align: right; }
+        .val-bgn { color: var(--led-green); font-size: 24px; font-weight: bold; display: block; text-align: right; }
+
+        .clear-btn { width: 100%; padding: 12px; background: #500; color: white; border: none; border-radius: 5px; margin-top: 15px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
-<div class="box">
-    <h2>Евро Калкулатор</h2>
-    <label>Цена на стоката (€):</label>
-    <input type="number" id="pEur" placeholder="0.00" inputmode="decimal" oninput="run()">
-    <label>Платено в лева (лв):</label>
-    <input type="number" id="pBgn" placeholder="0.00" inputmode="decimal" oninput="run()">
-    <div id="status" class="status-msg">Недостатъчна сума!</div>
-    <div id="out" class="res-area">
-        <div class="res-row"><span>Ресто в ЕВРО:</span> <span class="val-eur" id="re">0.00 €</span></div>
-        <div class="res-row"><span>Ресто в ЛЕВА:</span> <span class="val-bgn" id="rb">0.00 лв</span></div>
+
+<div class="pump-body">
+    <div style="text-align:center; color:#777; font-size:12px; margin-bottom:10px;">FUEL STATION SETTINGS (EUR)</div>
+    
+    <div class="settings-panel">
+        <div>A95<input type="number" id="cfgA95" step="0.001" oninput="savePrices()"></div>
+        <div>DIESEL<input type="number" id="cfgDiesel" step="0.001" oninput="savePrices()"></div>
+        <div>LPG<input type="number" id="cfgLPG" step="0.001" oninput="savePrices()"></div>
     </div>
-    <button class="clear-btn" onclick="cls()">ИЗЧИСТИ</button>
+
+    <div class="fuel-selector">
+        <button class="f-btn a95" onclick="setFuel('cfgA95')">A95H</button>
+        <button class="f-btn diesel" onclick="setFuel('cfgDiesel')">DIESEL</button>
+        <button class="f-btn lpg" onclick="setFuel('cfgLPG')">LPG</button>
+    </div>
+
+    <div class="display-unit">
+        <label>Total Price (€)</label>
+        <input type="number" id="pEur" class="main-input" placeholder="0.00" inputmode="decimal" oninput="run()">
+    </div>
+
+    <div class="display-unit">
+        <label>Cash Received (BGN)</label>
+        <input type="number" id="pBgn" class="main-input" placeholder="0.00" inputmode="decimal" oninput="run()">
+    </div>
+
+    <div class="res-area" id="out" style="opacity: 0.3;">
+        <label>Change EUR</label>
+        <span class="val-eur" id="re">0.00</span>
+        <label>Change BGN</label>
+        <span class="val-bgn" id="rb">0.00</span>
+    </div>
+
+    <button class="clear-btn" onclick="cls()">RESET</button>
 </div>
 
 <script>
     const R = 1.95583;
+
+    // ЗАРЕЖДАНЕ НА ЗАПАЗЕНИТЕ ЦЕНИ ПРИ СТАРТ
+    window.onload = function() {
+        document.getElementById('cfgA95').value = localStorage.getItem('price_A95') || "1.350";
+        document.getElementById('cfgDiesel').value = localStorage.getItem('price_Diesel') || "1.420";
+        document.getElementById('cfgLPG').value = localStorage.getItem('price_LPG') || "0.680";
+    };
+
+    function savePrices() {
+        localStorage.setItem('price_A95', document.getElementById('cfgA95').value);
+        localStorage.setItem('price_Diesel', document.getElementById('cfgDiesel').value);
+        localStorage.setItem('price_LPG', document.getElementById('cfgLPG').value);
+    }
+
+    function setFuel(id) {
+        document.getElementById('pEur').value = document.getElementById(id).value;
+        run();
+    }
+
     function run() {
         let e = parseFloat(document.getElementById('pEur').value) || 0;
         let b = parseFloat(document.getElementById('pBgn').value) || 0;
         let out = document.getElementById('out');
-        let status = document.getElementById('status');
-        if (e <= 0 || b <= 0) { out.style.opacity = "0.3"; status.style.display = "none"; return; }
+
+        if (e <= 0 || b <= 0) { out.style.opacity = "0.3"; return; }
+
         let chE = (b / R) - e;
         if (chE < 0) {
             out.style.opacity = "0.3";
-            status.style.display = "block";
         } else {
             out.style.opacity = "1";
-            status.style.display = "none";
-            document.getElementById('re').innerText = chE.toFixed(2) + " €";
-            document.getElementById('rb').innerText = (chE * R).toFixed(2) + " лв";
+            document.getElementById('re').innerText = chE.toFixed(2);
+            document.getElementById('rb').innerText = (chE * R).toFixed(2);
         }
     }
+
     function cls() {
         document.getElementById('pEur').value = '';
         document.getElementById('pBgn').value = '';
-        document.getElementById('status').style.display = "none";
         document.getElementById('out').style.opacity = "0.3";
-        document.getElementById('re').innerText = "0.00 €";
-        document.getElementById('rb').innerText = "0.00 лв";
     }
 
-    // ПОДОБРЕНА ОФЛАЙН ЛОГИКА
+    // ОФЛАЙН ПОДДРЪЖКА
     if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(registrations => {
-            for(let registration of registrations) { registration.unregister(); } // Изчиства стари версии
-        });
         window.addEventListener('load', () => {
             const swCode = `
-                const cacheName = 'v-final-' + Date.now();
+                const cacheName = 'fuel-v6';
                 self.addEventListener('install', e => {
                     self.skipWaiting();
                     e.waitUntil(caches.open(cacheName).then(c => c.addAll(['./'])));
-                });
-                self.addEventListener('activate', e => {
-                    e.waitUntil(caches.keys().then(keys => Promise.all(keys.map(k => k !== cacheName ? caches.delete(k) : null))));
                 });
                 self.addEventListener('fetch', e => e.respondWith(caches.match(e.request).then(r => r || fetch(e.request))));
             `;
