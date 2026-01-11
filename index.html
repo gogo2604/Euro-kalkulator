@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fuel Calc</title>
+    <title>Fuel Calc Final</title>
     <style>
         body { font-family: -apple-system, sans-serif; background: #222; color: #fff; text-align: center; padding: 20px; margin: 0; }
         .box { background: #333; border: 5px solid #111; border-radius: 20px; padding: 20px; max-width: 320px; margin: 0 auto; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
@@ -11,7 +11,7 @@
         .f-btn { flex: 1; padding: 15px 5px; border: none; border-radius: 8px; color: #fff; font-weight: bold; font-size: 11px; -webkit-appearance: none; }
         .in-grp { background: #000; border: 2px solid #444; border-radius: 10px; padding: 10px; margin-bottom: 10px; }
         label { display: block; font-size: 10px; color: #777; margin-bottom: 5px; text-transform: uppercase; }
-        input { width: 100%; background: transparent; border: none; color: #ffcc00; font-size: 30px; text-align: right; outline: none; -webkit-appearance: none; box-sizing: border-box; }
+        input { width: 100%; background: transparent; border: none; color: #ffcc00; font-size: 30px; text-align: right; outline: none; -webkit-appearance: none; box-sizing: border-box; font-family: monospace; }
         .res-box { background: #000; border: 2px solid #222; border-radius: 10px; padding: 15px; margin-top: 10px; text-align: right; }
         #rE { color: #ff3b30; font-size: 34px; font-weight: bold; display: block; }
         #rB { color: #4cd964; font-size: 24px; font-weight: bold; display: block; }
@@ -29,12 +29,12 @@
 
     <div class="in-grp" id="eB">
         <label>Цена Евро (€)</label>
-        <input type="number" id="iE" step="any" inputmode="decimal" oninput="calculateNow()">
+        <input type="text" id="iE" inputmode="decimal" oninput="fixAndCalc(this)">
     </div>
 
     <div class="in-grp">
         <label>Платено Лева (лв)</label>
-        <input type="number" id="iB" step="any" inputmode="decimal" oninput="calculateNow()">
+        <input type="text" id="iB" inputmode="decimal" oninput="fixAndCalc(this)">
     </div>
 
     <div class="res-box">
@@ -47,12 +47,20 @@
 </div>
 
 <script type="text/javascript">
+    function fixAndCalc(el) {
+        // Подменя запетая с точка автоматично
+        if (el.value.includes(',')) {
+            el.value = el.value.replace(',', '.');
+        }
+        calculateNow();
+    }
+
     function calculateNow() {
-        var fieldE = document.getElementById('iE');
-        var fieldB = document.getElementById('iB');
+        var valE = document.getElementById('iE').value;
+        var valB = document.getElementById('iB').value;
         
-        var e = parseFloat(fieldE.value);
-        var b = parseFloat(fieldB.value);
+        var e = parseFloat(valE);
+        var b = parseFloat(valB);
         var rate = 1.95583;
 
         if (!isNaN(e) && !isNaN(b) && e > 0 && b > 0) {
@@ -62,7 +70,7 @@
                 document.getElementById('rB').innerHTML = (diff * rate).toFixed(2) + " лв";
             } else {
                 document.getElementById('rE').innerHTML = "МАЛКО ПАРИ";
-                document.getElementById('rB').innerHTML = "0.00";
+                document.getElementById('rB').innerHTML = "0.00 лв";
             }
         } else {
             document.getElementById('rE').innerHTML = "0.00 €";
