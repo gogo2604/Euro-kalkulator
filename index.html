@@ -3,87 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fuel Calc Safari</title>
+    <title>Fuel Calc Fix</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/1086/1086741.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1086/1086741.png">
     
     <style>
-        :root { --led-red: #ff3b30; --led-green: #4cd964; --led-yellow: #ffcc00; }
-        body { font-family: -apple-system, sans-serif; background: #222; display: flex; justify-content: center; padding: 10px; margin: 0; color: white; }
-        .pump-body { background: #333; border: 6px solid #111; border-radius: 20px; padding: 20px; width: 100%; max-width: 380px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .fuel-selector { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .f-btn { padding: 15px 5px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; font-size: 11px; color: white; -webkit-appearance: none; }
-        .a95 { background: #006400; border: 2px solid #008000; }
-        .diesel { background: #111; border: 2px solid #444; }
-        .lpg { background: #d35400; border: 2px solid #e67e22; }
-        .display-unit { background: #000; border-radius: 10px; padding: 12px; border: 3px inset #222; margin-bottom: 10px; transition: background 0.3s; }
-        label { display: block; font-size: 11px; color: #666; text-transform: uppercase; margin-bottom: 3px; }
-        input { width: 100%; background: transparent; border: none; color: var(--led-yellow); font-size: 30px; text-align: right; outline: none; -webkit-appearance: none; }
-        .res-area { background: #000; padding: 15px; border-radius: 8px; min-height: 80px; border: 2px solid #222; }
-        .val-eur { color: var(--led-red); font-size: 34px; font-weight: bold; display: block; text-align: right; }
-        .val-bgn { color: var(--led-green); font-size: 24px; font-weight: bold; display: block; text-align: right; }
-        .clear-btn { width: 100%; padding: 15px; background: #500; color: white; border: none; border-radius: 8px; margin-top: 15px; font-weight: bold; }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #1a1a1a; color: white; display: flex; justify-content: center; padding: 15px; margin: 0; }
+        .pump { background: #333; border-radius: 25px; padding: 20px; width: 100%; max-width: 350px; border: 5px solid #111; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .btn { padding: 15px 5px; border: none; border-radius: 10px; color: white; font-weight: bold; font-size: 12px; cursor: pointer; -webkit-appearance: none; }
+        .g1 { background: #006400; } .g2 { background: #111; border: 1px solid #444; } .g3 { background: #d35400; }
+        .scr { background: #000; border-radius: 12px; padding: 12px; border: 2px solid #222; margin-bottom: 12px; transition: 0.3s; }
+        label { display: block; font-size: 10px; color: #666; text-transform: uppercase; margin-bottom: 4px; }
+        input { width: 100%; background: transparent; border: none; color: #ffcc00; font-size: 32px; text-align: right; outline: none; -webkit-appearance: none; font-family: monospace; }
+        .res { background: #000; padding: 15px; border-radius: 12px; border: 2px solid #222; text-align: right; }
+        .e-val { color: #ff3b30; font-size: 36px; font-weight: bold; display: block; }
+        .b-val { color: #4cd964; font-size: 26px; font-weight: bold; display: block; }
+        .rst { width: 100%; padding: 15px; background: #600; color: white; border: none; border-radius: 10px; margin-top: 15px; font-weight: bold; -webkit-appearance: none; }
     </style>
 </head>
 <body>
 
-<div class="pump-body">
-    <div style="text-align:center; color:#777; font-size:12px; margin-bottom:10px;">SAFARI STABLE v11</div>
+<div class="pump">
+    <div style="text-align:center; color:#555; font-size:10px; margin-bottom:10px;">ULTRA STABLE v12</div>
     
-    <div class="fuel-selector">
-        <button type="button" class="f-btn a95" onclick="chCol('#006400')">A95H</button>
-        <button type="button" class="f-btn diesel" onclick="chCol('#111')">DIESEL</button>
-        <button type="button" class="f-btn lpg" onclick="chCol('#d35400')">LPG</button>
+    <div class="grid">
+        <button class="btn g1" onclick="setMode('#006400')">A95H</button>
+        <button class="btn g2" onclick="setMode('#111')">DIESEL</button>
+        <button class="btn g3" onclick="setMode('#d35400')">LPG</button>
     </div>
 
-    <div class="display-unit" id="boxE">
+    <div class="scr" id="eBlock">
         <label>Цена в Евро (€)</label>
-        <input type="number" id="pE" placeholder="0.00" inputmode="decimal" onkeyup="calc()" oninput="calc()">
+        <input type="number" id="inpE" placeholder="0.00" inputmode="decimal" oninput="doCalc()">
     </div>
 
-    <div class="display-unit">
+    <div class="scr">
         <label>Платено в Лева (лв)</label>
-        <input type="number" id="pB" placeholder="0.00" inputmode="decimal" onkeyup="calc()" oninput="calc()">
+        <input type="number" id="inpB" placeholder="0.00" inputmode="decimal" oninput="doCalc()">
     </div>
 
-    <div class="res-area" id="out" style="opacity: 0.2;">
-        <label>Ресто EUR / BGN</label>
-        <span class="val-eur" id="re">0.00</span>
-        <span class="val-bgn" id="rb">0.00</span>
+    <div class="res" id="resBlock" style="opacity: 0.2;">
+        <label>Ресто</label>
+        <span class="e-val" id="outE">0.00</span>
+        <span class="b-val" id="outB">0.00</span>
     </div>
 
-    <button type="button" class="clear-btn" onclick="cls()">ИЗЧИСТИ</button>
+    <button class="rst" onclick="doReset()">ИЗЧИСТИ</button>
 </div>
 
 <script>
-    function chCol(c) {
-        document.getElementById('boxE').style.background = c;
-        document.getElementById('pE').focus();
+    // Променени имена на функциите за избягване на кеш конфликт
+    function setMode(color) {
+        document.getElementById('eBlock').style.backgroundColor = color;
+        document.getElementById('inpE').focus();
     }
 
-    function calc() {
-        var e = parseFloat(document.getElementById('pE').value) || 0;
-        var b = parseFloat(document.getElementById('pB').value) || 0;
-        var r = 1.95583;
+    function doCalc() {
+        var valE = parseFloat(document.getElementById('inpE').value) || 0;
+        var valB = parseFloat(document.getElementById('inpB').value) || 0;
+        var rate = 1.95583;
         
-        var resE = (b / r) - e;
+        var diffE = (valB / rate) - valE;
         
-        if (e > 0 && b > 0 && resE >= 0) {
-            document.getElementById('out').style.opacity = "1";
-            document.getElementById('re').innerHTML = resE.toFixed(2);
-            document.getElementById('rb').innerHTML = (resE * r).toFixed(2);
+        var block = document.getElementById('resBlock');
+        
+        if (valE > 0 && valB > 0 && diffE >= 0) {
+            block.style.opacity = "1";
+            document.getElementById('outE').innerHTML = diffE.toFixed(2) + " €";
+            document.getElementById('outB').innerHTML = (diffE * rate).toFixed(2) + " лв";
         } else {
-            document.getElementById('out').style.opacity = "0.2";
-            document.getElementById('re').innerHTML = "0.00";
-            document.getElementById('rb').innerHTML = "0.00";
+            block.style.opacity = "0.2";
+            document.getElementById('outE').innerHTML = "0.00";
+            document.getElementById('outB').innerHTML = "0.00";
         }
     }
 
-    function cls() {
-        document.getElementById('pE').value = '';
-        document.getElementById('pB').value = '';
-        document.getElementById('boxE').style.background = '#000';
-        calc();
+    function doReset() {
+        document.getElementById('inpE').value = '';
+        document.getElementById('inpB').value = '';
+        document.getElementById('eBlock').style.backgroundColor = '#000';
+        doCalc();
     }
 </script>
 </body>
